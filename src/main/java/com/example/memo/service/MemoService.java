@@ -5,13 +5,16 @@ import com.example.memo.dto.MemoResponseDto;
 import com.example.memo.entity.Memo;
 import com.example.memo.repository.MemoRepository;
 import java.util.List;
-import org.springframework.jdbc.core.JdbcTemplate;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MemoService {
-    private final JdbcTemplate jdbcTemplate;
+    // 멤버 변수 선언
+    private final MemoRepository memoRepository;
 
-    public MemoService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public MemoService(MemoRepository memoRepository) {
+        this.memoRepository = memoRepository;
     }
 
     public MemoResponseDto createMemo(MemoRequestDto requestDto) {
@@ -19,7 +22,6 @@ public class MemoService {
         Memo memo = Memo.fromDto(requestDto);
 
         // DB 저장
-        MemoRepository memoRepository = new MemoRepository(jdbcTemplate);
         Memo saveMemo = memoRepository.save(memo);
 
         // Entity -> ResponseDto
@@ -30,35 +32,36 @@ public class MemoService {
 
     public List<MemoResponseDto> getMemos() {
         // DB 조회
-        MemoRepository memoRepository = new MemoRepository(jdbcTemplate);
-        return memoRepository.findAll();
+        List<Memo> memos = memoRepository.findAll();
+
+        // Memo -> MemoResponseDto 변환
+        return memos.stream()
+                .map(MemoResponseDto::from)
+                .collect(Collectors.toList());
     }
 
     public Long updateMemo(Long id, MemoRequestDto requestDto) {
-        MemoRepository memoRepository = new MemoRepository(jdbcTemplate);
         // 해당 메모가 DB에 존재하는지 확인
-        Memo memo = memoRepository.findById(id);
-        if (memo != null) {
-            // memo 내용 수정
-            memoRepository.update(id, requestDto);
+        Memo memo = memoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("선택한 메모는 존재하지 않습니다."));
 
-            return id;
-        } else {
-            throw new IllegalArgumentException("선택한 메모는 존재하지 않습니다.");
-        }
+        // memo 내용 수정
+        memo.setContents(requestDto.getContents());
+
+        // 수정된 내용 저장
+        memoRepository.save(memo);
+
+        return id;
     }
 
     public Long deleteMemo(Long id) {
-        MemoRepository memoRepository = new MemoRepository(jdbcTemplate);
         // 해당 메모가 DB에 존재하는지 확인
-        Memo memo = memoRepository.findById(id);
-        if (memo != null) {
-            // memo 삭제
-            memoRepository.delete(id);
+        Memo memo = memoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("선택한 메모는 존재하지 않습니다."));
 
-            return id;
-        } else {
-            throw new IllegalArgumentException("선택한 메모는 존재하지 않습니다.");
-        }
+        // memo 삭제
+        memoRepository.delete(memo);
+
+        return id;
     }
 }
