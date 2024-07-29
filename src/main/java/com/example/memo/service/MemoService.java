@@ -6,16 +6,14 @@ import com.example.memo.entity.Memo;
 import com.example.memo.repository.MemoRepository;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MemoService {
-    // 멤버 변수 선언
-    private final MemoRepository memoRepository;
 
-    public MemoService(MemoRepository memoRepository) {
-        this.memoRepository = memoRepository;
-    }
+    private final MemoRepository memoRepository;
 
     public MemoResponseDto createMemo(MemoRequestDto requestDto) {
         // RequestDto -> Entity

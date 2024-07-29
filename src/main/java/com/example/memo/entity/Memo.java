@@ -22,11 +22,11 @@ public class Memo {
     private Long id;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String contents;
 
     public static Memo fromDto(MemoRequestDto requestDto) {

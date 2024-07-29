@@ -1,6 +1,5 @@
 package com.example.memo.controller;
 
-
 import com.example.memo.dto.MemoRequestDto;
 import com.example.memo.dto.MemoResponseDto;
 import com.example.memo.service.MemoService;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class MemoController {
-
     private final MemoService memoService;
 
     public MemoController(MemoService memoService) {
